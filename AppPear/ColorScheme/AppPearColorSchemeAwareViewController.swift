@@ -12,6 +12,8 @@ protocol AppPearColorSchemeAwareViewController {
     func applyColorScheme(_ colorScheme: AppPearColorScheme, animated: Bool)
 }
 
+// MARK: - UIViewController extensions
+
 extension UIViewController: AppPearColorSchemeAwareViewController {
     func applyColorScheme(_ colorScheme: AppPearColorScheme, animated: Bool) {
         view.downcastColorScheme(colorScheme, animated: animated)
@@ -39,11 +41,14 @@ extension UIViewController: AppPearColorSchemeAwareViewController {
                 }
             }
 
-            self.applayNavigationBarColorScheme(colorScheme)
+
+            if self.applyNavBarColors {
+                self.applyNavigationBarColorScheme(colorScheme)
+            }
         }
     }
 
-    func applayNavigationBarColorScheme(_ colorScheme: AppPearColorScheme) {
+    func applyNavigationBarColorScheme(_ colorScheme: AppPearColorScheme) {
         self.navigationController?.navigationBar.barStyle = colorScheme.navigationBarStyle
         self.navigationController?.navigationBar.tintColor = colorScheme.navigationBarTextColor
         self.navigationController?.navigationBar.barTintColor = colorScheme.navigationBarBackgroundColor
@@ -117,6 +122,28 @@ extension UIView {
     public var skipColorScheme: Bool {
         get {
             return objc_getAssociatedObject(self, &AssociatedKey.key) as? Bool ?? false
+        }
+        set {
+            if newValue {
+                objc_setAssociatedObject(self, &AssociatedKey.key, true, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
+            else {
+                if let obj = objc_getAssociatedObject(self, &AssociatedKey.key) as? Bool {
+                    objc_removeAssociatedObjects(obj)
+                }
+            }
+        }
+    }
+}
+
+extension UIViewController {
+    private struct AssociatedKey {
+        static var key = "applyNavBarColors"
+    }
+
+    public var applyNavBarColors: Bool {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedKey.key) as? Bool ?? true
         }
         set {
             if newValue {

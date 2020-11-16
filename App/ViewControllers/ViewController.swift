@@ -134,6 +134,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         AppPear.shared.register(fonts: normalFonts(), for: FontSizes.normal)
         AppPear.shared.register(fonts: largeFonts(), for: FontSizes.large)
         AppPear.shared.switchFontSize(to: FontSizes.normal)
+
+        AppPear.shared.blackListVC(TableViewController.self)
     }
 
 

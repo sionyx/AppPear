@@ -92,6 +92,11 @@ public class AppPear: NSObject {
 
     /// Internal method to register views controller to be notified on color scheme changed
     internal func registerViewController(_ viewController: UIViewController) {
+        print("AppPear registers view controller: \(String(describing: type(of: viewController)))")
+        if blacklist.contains(String(describing: type(of: viewController))) {
+            return
+        }
+
         viewControllers.append(WeakViewControllerContainer(viewController: viewController))
 
         if let currentColorScheme = currentColorScheme {
@@ -111,6 +116,16 @@ public class AppPear: NSObject {
             block()
         }
     }
+
+    fileprivate var blacklist: [String] = []
+
+    public func blackListVC(_ type: UIViewController.Type) {
+        blacklist.append(String(describing: type))
+    }
+
+    public func blackListVC(name: String) {
+        blacklist.append(name)
+    }
 }
 
 extension UIView {
@@ -118,7 +133,19 @@ extension UIView {
     func apppear_willMove(toSuperview newSuperview: UIView?) {
         apppear_willMove(toSuperview: newSuperview)
 
-        if newSuperview != nil {
+
+        let blacklisted: Bool
+        if let parentVC = self.parentViewController,
+            AppPear.shared.blacklist.contains(String(describing: type(of: parentVC))) {
+            blacklisted = true
+        }
+        else {
+            blacklisted = false
+        }
+
+
+        if !blacklisted,
+            newSuperview != nil {
             if let currentColorScheme = AppPear.shared.currentColorScheme {
                 downcastColorScheme(currentColorScheme, animated: false)
             }
